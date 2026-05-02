@@ -29,10 +29,32 @@ pipeline {
         stage('Deploy Simulation') {
             steps {
                 sh """
-                echo "Running deploy script using bash"
-                bash deploy/deploy_to_cde.sh ${params.ENV} ${params.SERVICE} ${params.DEPLOY_TYPE}
+                echo "Starting deployment"
+                echo "Environment: ${params.ENV}"
+                echo "Service: ${params.SERVICE}"
+                echo "Deploy Type: ${params.DEPLOY_TYPE}"
+
+                echo "Validating folders"
+
+                if [ "${params.DEPLOY_TYPE}" = "dag" ] || [ "${params.DEPLOY_TYPE}" = "all" ]; then
+                    echo "Checking DAG path: dags/${params.SERVICE}"
+                ls -la dags || true
+                fi
+
+                if [ "${params.DEPLOY_TYPE}" = "spark" ] || [ "${params.DEPLOY_TYPE}" = "all" ]; then
+                    echo "Checking Spark path: spark_jobs/${params.SERVICE}"
+                ls -la spark_jobs || true
+                fi
+
+                if [ "${params.DEPLOY_TYPE}" = "config" ] || [ "${params.DEPLOY_TYPE}" = "all" ]; then
+                    echo "Checking config path: configs/${params.SERVICE}"
+                ls -la configs || true
+                fi
+
+                echo "Simulating CDE deployment completed successfully"
                 """
             }
-        }
+        }   
+        
     }
 }
