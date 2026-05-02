@@ -1,17 +1,24 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(name: 'ENV', choices: ['dev', 'test', 'prod'], description: 'Target environment')
+        choice(name: 'SERVICE', choices: ['abp', 'shortfall'], description: 'Pipeline service')
+        choice(name: 'DEPLOY_TYPE', choices: ['dag', 'spark', 'config', 'all'], description: 'Deployment type')
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                echo "Checking out code from branch: ${env.BRANCH_NAME}"
+                echo "Branch: ${env.BRANCH_NAME}"
+                echo "Environment: ${params.ENV}"
+                echo "Service: ${params.SERVICE}"
+                echo "Deploy Type: ${params.DEPLOY_TYPE}"
             }
         }
 
         stage('Validate') {
             steps {
-                echo "Validating repo structure"
-                sh 'ls -la'
                 sh 'test -d dags'
                 sh 'test -d spark_jobs'
                 sh 'test -d configs'
@@ -19,16 +26,35 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo "Packaging data pipeline artifacts"
-            }
-        }
-
         stage('Deploy Simulation') {
             steps {
-                echo "Simulating deployment for branch: ${env.BRANCH_NAME}"
+                sh """
+                echo "Starting deployment"
+                echo "Environment: ${params.ENV}"
+                echo "Service: ${params.SERVICE}"
+                echo "Deploy Type: ${params.DEPLOY_TYPE}"
+
+                echo "Validating folders"
+
+                if [ "${params.DEPLOY_TYPE}" = "dag" ] || [ "${params.DEPLOY_TYPE}" = "all" ]; then
+                    echo "Checking DAG path: dags/${params.SERVICE}"
+                ls -la dags || true
+                fi
+
+                if [ "${params.DEPLOY_TYPE}" = "spark" ] || [ "${params.DEPLOY_TYPE}" = "all" ]; then
+                    echo "Checking Spark path: spark_jobs/${params.SERVICE}"
+                ls -la spark_jobs || true
+                fi
+
+                if [ "${params.DEPLOY_TYPE}" = "config" ] || [ "${params.DEPLOY_TYPE}" = "all" ]; then
+                    echo "Checking config path: configs/${params.SERVICE}"
+                ls -la configs || true
+                fi
+
+                echo "Simulating CDE deployment completed successfully"
+                """
             }
-        }
+        }   
+        
     }
 }
