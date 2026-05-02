@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ENV', choices: ['dev', 'test', 'prod'], description: 'Target environment')
+        choice(name: 'SERVICE', choices: ['abp', 'shortfall'], description: 'Pipeline service')
+        choice(name: 'DEPLOY_TYPE', choices: ['dag', 'spark', 'config', 'all'], description: 'Deployment type')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Branch: ${env.BRANCH_NAME}"
+                echo "Environment: ${params.ENV}"
+                echo "Service: ${params.SERVICE}"
+                echo "Deploy Type: ${params.DEPLOY_TYPE}"
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                sh 'test -d dags'
+                sh 'test -d spark_jobs'
+                sh 'test -d configs'
+                sh 'test -d deploy'
+            }
+        }
+
+        stage('Deploy Simulation') {
+            steps {
+                sh "bash deploy/deploy_to_cde.sh ${params.ENV} ${params.SERVICE} ${params.DEPLOY_TYPE}"
+            }
+        }
+    }
+}
