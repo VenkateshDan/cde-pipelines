@@ -28,7 +28,10 @@ pipeline {
 
         stage('Deploy Simulation') {
             steps {
-                sh "bash deploy/deploy_to_cde.sh ${params.ENV} ${params.SERVICE} ${params.DEPLOY_TYPE}"
+                sh """
+                echo "Running deploy script using bash"
+                bash deploy/deploy_to_cde.sh ${params.ENV} ${params.SERVICE} ${params.DEPLOY_TYPE}
+                """
             }
         }
     }
