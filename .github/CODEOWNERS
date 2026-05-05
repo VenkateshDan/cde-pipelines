@@ -1,0 +1,21 @@
+# Default owner
+* @VenkateshDan
+
+# DAG ownership
+/dags/ @VenkateshDan
+
+# Spark jobs
+/spark_jobs/ @VenkateshDan
+
+# Configs
+/configs/ @VenkateshDan
+
+# Resources
+/resources/ @VenkateshDan
+
+# Deployment
+/deploy/ @VenkateshDan
+/Jenkinsfile @VenkateshDan
+
+# Docs
+/README.md @VenkateshDan
